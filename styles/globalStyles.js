@@ -5,48 +5,105 @@ const colors = {
   secondary: "#6FCF97", // Muted Green
   accent: "#F2C94C", // Subtle Yellow
   background: "#FAFAFA", // Off-white for a breathable UI
-  text: "#333333", // Dark Gray for contrast
+  text: "#222222", // Dark Gray for better contrast
   gray: "#BDBDBD", // Neutral Gray
   white: "#FFFFFF", // Pure White
+  lightGray: "#E0E0E0", // Light Gray for subtle UI elements
+  selected: "#D9EFFF", // Light Blue for selected items
 };
 
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: colors.background,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: colors.primary,
-    marginBottom: 15,
-    letterSpacing: 0.5,
-  },
-  taskItem: {
-    padding: 15,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    marginBottom: 10,
-    shadowColor: colors.gray,
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2, // For Android
-  },
-  addButton: {
-    marginTop: 20,
-    paddingVertical: 12,
+    fontSize: 20,
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: colors.secondary,
-    borderRadius: 12,
+    fontWeight: "bold",
+    color: colors.text,
+  },
+
+  // Task Screen
+  dateButton: {
+    borderRadius: 5,
+    backgroundColor: colors.white,
+    marginRight: 10,
+    paddingLeft: 4,
     alignItems: "center",
     justifyContent: "center",
+    width: 50,
+    height: 50,
+  },
+  selectedDateButton: {
+    backgroundColor: colors.selected,
+    borderColor: colors.primary,
+  },
+  dateText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: colors.text,
+  },
+  dayText: {
+    fontSize: 12,
+    color: colors.gray,
+  },
+  selectedDateText: {
+    color: colors.primary,
+  },
+  taskItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    backgroundColor: colors.background,
+    marginHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray,
+  },
+  taskCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: colors.gray,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  taskCheckboxCompleted: {
+    borderColor: colors.secondary,
+    backgroundColor: colors.secondary,
+  },
+  taskText: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.text,
+  },
+  taskTextCompleted: {
+    textDecorationLine: "line-through",
+    color: colors.gray,
+  },
+  addButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.secondary,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.gray,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   addButtonText: {
+    fontSize: 24,
     color: colors.white,
-    fontSize: 16,
-    fontWeight: "600",
-    letterSpacing: 0.3,
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
@@ -74,10 +131,40 @@ export const globalStyles = StyleSheet.create({
   input: {
     width: "100%",
     padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray,
+    borderWidth: 1,
+    borderColor: colors.lightGray,
+    borderRadius: 8,
     marginBottom: 12,
     fontSize: 16,
-    letterSpacing: 0.3,
+    color: colors.text,
+  },
+  switchContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 10,
+  },
+  recurringDaysContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  dayButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    margin: 4,
+  },
+  selectedDayButton: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  dayButtonText: {
+    fontSize: 14,
+    color: colors.text,
   },
 });
