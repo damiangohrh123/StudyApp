@@ -6,7 +6,7 @@ import { format, addDays, subDays, isToday } from "date-fns";
 import { collection, addDoc, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/AuthContext";
-import { AntDesign } from "@expo/vector-icons"; // Checkmark icon
+import { AntDesign } from "@expo/vector-icons";
 
 // Register the English locale for date picker
 registerTranslation('en', {
@@ -73,6 +73,13 @@ export default function TaskScreen() {
   // Handle task filtering based on selected date
   const filteredTasks = tasks.filter((task) => {
     const taskDate = task.dueDate ? task.dueDate.toDate() : null;
+    const selectedDay = format(selectedDate, "EEEE"); // Get day name (e.g., "Monday")
+  
+    if (task.isRecurring && task.recurringDays.includes(selectedDay)) {
+      const startDate = task.startDate ? task.startDate.toDate() : null;
+      return startDate ? selectedDate >= startDate : true; // Only show if after start date
+    }
+  
     return taskDate && taskDate.toDateString() === selectedDate.toDateString();
   });
 
@@ -87,6 +94,7 @@ export default function TaskScreen() {
         userId: user.uid,
         title: newTaskTitle,
         dueDate: isRecurring ? null : dueDate ? dueDate : null, // Storing as Timestamp if available
+        startDate: isRecurring ? new Date() : null,
         isRecurring,
         recurringDays: isRecurring ? recurringDays : [],
         completed: false,
@@ -216,9 +224,37 @@ export default function TaskScreen() {
               <Switch value={isRecurring} onValueChange={setIsRecurring} />
             </View>
 
+            {/* Show recurring days selection if recurring is enabled */}
+            {isRecurring && (
+              <View style={{ marginBottom: 10 }}>
+                <Text style={{ fontSize: 16, marginBottom: 5 }}>Select Recurring Days:</Text>
+                <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                  {daysOfWeek.map((day) => (
+                    <TouchableOpacity
+                      key={day}
+                      onPress={() => {
+                        setRecurringDays((prev) =>
+                          prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+                        );
+                      }}
+                      style={{
+                        paddingVertical: 5,
+                        paddingHorizontal: 10,
+                        margin: 3,
+                        borderRadius: 5,
+                        backgroundColor: recurringDays.includes(day) ? "#6FCF97" : "#f0f0f0",
+                      }}
+                    >
+                      <Text style={{ color: recurringDays.includes(day) ? "white" : "#333" }}>{day}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+
             <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
               <TextInput
-                label="Due Date"
+                label={isRecurring ? "Start Date" : "Due Date"}
                 value={dueDate ? format(dueDate, "yyyy-MM-dd") : "Select Date"}
                 editable={false}
                 style={{ marginBottom: 10 }}
