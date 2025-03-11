@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Button } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 
 export default function TimerScreen() {
@@ -36,10 +37,12 @@ export default function TimerScreen() {
   };
 
   return (
-    <View style={globalStyles.container}>
-      <Text style={globalStyles.timer}>{formatTime(seconds)}</Text>
-      <Button title={isActive ? "Pause" : "Start"} onPress={toggleTimer} />
-      <Button title="Reset" onPress={resetTimer} />
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
+      <View style={globalStyles.container}>
+        <Text style={globalStyles.timer}>{formatTime(seconds)}</Text>
+        <Button title={isActive ? "Pause" : "Start"} onPress={toggleTimer} />
+        <Button title="Reset" onPress={resetTimer} />
+      </View>
+    </SafeAreaView>
   );
 }
