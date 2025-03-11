@@ -1,14 +1,18 @@
 import { StyleSheet } from "react-native";
 
 const colors = {
+  background: "#FAFAFA", // Off-white
   primary: "#4A90E2",  // Soft Blue
-  secondary: "#6FCF97", // Muted Green
-  accent: "#F2C94C", // Subtle Yellow
-  background: "#FAFAFA", // Off-white for a breathable UI
-  text: "#222222", // Dark Gray for better contrast
+
+  // Texts
+  text: "#222222", // Dark Gray
   gray: "#BDBDBD", // Neutral Gray
   white: "#FFFFFF", // Pure White
   lightGray: "#E0E0E0", // Light Gray for subtle UI elements
+
+  // Checkbox
+  checked: "#6FCF97", // Muted Green
+
   selected: "#D9EFFF", // Light Blue for selected items
 };
 
@@ -52,6 +56,11 @@ export const globalStyles = StyleSheet.create({
   selectedDateText: {
     color: colors.primary,
   },
+  tasksContainer: {
+    height: "88%",
+    justifyContent: "flex-start",
+    paddingTop: 10,
+  },
   taskItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -60,21 +69,19 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: colors.background,
     marginHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: colors.gray,
+    borderBottomColor: colors.lightGray,
   },
   taskCheckbox: {
     width: 22,
     height: 22,
     borderRadius: 15,
-    borderWidth: 2,
-    borderColor: colors.gray,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
+    backgroundColor: colors.lightGray,
   },
   taskCheckboxCompleted: {
-    borderColor: colors.secondary,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.checked,
   },
   taskText: {
     flex: 1,
@@ -91,8 +98,8 @@ export const globalStyles = StyleSheet.create({
     right: 20,
     width: 50,
     height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.secondary,
+    borderRadius: 15,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: colors.gray,
