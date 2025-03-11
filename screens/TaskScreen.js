@@ -34,6 +34,7 @@ export default function TaskScreen() {
   useEffect(() => {
     if (!user) return;
 
+    // Query tasks by userId
     const q = query(collection(db, "tasks"), where("userId", "==", user.uid));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
