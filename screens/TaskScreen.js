@@ -29,9 +29,15 @@ export default function TaskScreen() {
   const [dueDate, setDueDate] = useState(null);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringDays, setRecurringDays] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const taskCategories = [
+    { name: "Assignment", icon: "edit" },
+    { name: "Revision", icon: "book-open" },
+    { name: "Practice", icon: "watch" },
+  ]; 
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   // Auto-scroll to today's date for the horizontal scroll
@@ -99,6 +105,7 @@ export default function TaskScreen() {
         startDate: isRecurring ? new Date() : null,
         isRecurring,
         recurringDays: isRecurring ? recurringDays : [],
+        category: selectedCategory,
         completed: false,
         expired: false,
       });
@@ -107,6 +114,7 @@ export default function TaskScreen() {
       setDueDate(null);
       setIsRecurring(false);
       setRecurringDays([]);
+      setSelectedCategory("");
       setModalVisible(false);
     } catch (error) {
       console.error("Error adding task: ", error);
@@ -157,13 +165,33 @@ export default function TaskScreen() {
             data={filteredTasks}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
+
+              // Singular task item
               <TouchableOpacity
                 style={globalStyles.taskItem}
                 onPress={() => toggleTask(item)}
               >
-                <Text style={[globalStyles.taskText, item.completed && globalStyles.taskTextCompleted]}>
-                  {item.title}
-                </Text>
+                {/* Category icon */}
+                <View style={[item.category === "Assignment" && globalStyles.assignmentsBackground,
+                              item.category === "Revision" && globalStyles.revisionBackground,
+                              item.category === "Practice" && globalStyles.practiceBackground]}>
+                  <Feather
+                    name={
+                      item.category === "Assignment" ? "edit" :
+                      item.category === "Revision" ? "book-open" : "watch"
+                    }
+                    size={20}
+                    color="#FFF"
+                  />
+                </View>
+                <View>
+                  <Text style={globalStyles.taskText}>
+                    {item.title}
+                  </Text>
+                  <Text style={globalStyles.taskCategoryText}>
+                    {item.category}
+                  </Text>
+                </View>
                 <View style={[globalStyles.taskCheckbox, item.completed && globalStyles.taskCheckboxCompleted]}>
                   {item.completed && <Feather name="check" size={18} color="#FFF" />}
                 </View>
@@ -172,16 +200,40 @@ export default function TaskScreen() {
           />
         </View>
 
+        {/* Add tasks button */}
         <TouchableOpacity style={globalStyles.addButton} onPress={() => setModalVisible(true)}>
           <Text style={globalStyles.addButtonText}>+</Text>
         </TouchableOpacity>
 
+        {/* Add tasks modal */}
         <Modal visible={modalVisible} animationType="slide" transparent>
           <View style={globalStyles.modalContainer}>
             <View style={globalStyles.modalContent}>
               <Text style={globalStyles.modalTitle}>New Task</Text>
 
               <TextInput label="Task Title" value={newTaskTitle} onChangeText={setNewTaskTitle} style={globalStyles.input} />
+
+              {/* Task Category Selection */}
+              <Text style={globalStyles.inputLabel}>Task Category</Text>
+              <View style={globalStyles.categorySelectionContainer}>
+                {taskCategories.map((category) => (
+                  <TouchableOpacity
+                    key={category.name}
+                    onPress={() => setSelectedCategory(category.name)}
+                    style={[
+                      globalStyles.categoryButton,
+                      selectedCategory === category.name && globalStyles.selectedCategoryButton,
+                    ]}
+                  >
+                    <Feather
+                      name={category.icon}
+                      size={20}
+                      color={selectedCategory === category.name ? "#fff" : "#000"}
+                    />
+                    <Text style={globalStyles.categoryButtonText}>{category.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
 
               <View style={globalStyles.switchContainer}>
                 <Text>Recurring Task</Text>

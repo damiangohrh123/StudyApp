@@ -1,19 +1,19 @@
 import { StyleSheet } from "react-native";
 
 const colors = {
-  background: "#FAFAFA", // Off-white
-  primary: "#4A90E2",  // Soft Blue
+  background: "rgba(250, 250, 250, 1)", // Off-white
+  primary: "rgba(74, 144, 226, 1)",     // Soft Blue
 
   // Texts
-  text: "#222222", // Dark Gray
-  gray: "#BDBDBD", // Neutral Gray
-  white: "#FFFFFF", // Pure White
-  lightGray: "#E0E0E0", // Light Gray for subtle UI elements
+  text: "rgba(34, 34, 34, 1)",          // Dark Gray main text
+  gray: "rgba(142, 142, 142, 1)",       // Gray for sub text
+  lightGray: "rgba(224, 224, 224, 1)",  // Light Gray for subtle UI elements
+  white: "rgba(255, 255, 255, 1)",      // White
 
   // Checkbox
-  checked: "#6FCF97", // Muted Green
+  checked: "rgba(111, 207, 151, 1)",    // Muted Green
 
-  selected: "#D9EFFF", // Light Blue for selected items
+  selected: "rgba(217, 239, 255, 1)",   // Light Blue for selected items
 };
 
 export const globalStyles = StyleSheet.create({
@@ -64,33 +64,59 @@ export const globalStyles = StyleSheet.create({
   taskItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    backgroundColor: colors.background,
+    gap: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     marginHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
   },
+  assignmentsBackground: {
+    backgroundColor: "rgba(232, 47, 62, 1)",
+    width: 35,
+    height: 35,
+    padding: 5,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  revisionBackground: {
+    backgroundColor: "rgba(167, 103, 231, 1)",
+    width: 35,
+    height: 35,
+    padding: 5,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  practiceBackground: {
+    backgroundColor: "rgba(94, 138, 237, 1)",
+    width: 35,
+    height: 35,
+    padding: 5,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  taskText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  taskCategoryText: {
+    fontSize: 12,
+    color: colors.gray,
+  },
   taskCheckbox: {
-    width: 22,
-    height: 22,
+    width: 25,
+    height: 25,
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginLeft: "auto",
     backgroundColor: colors.lightGray,
   },
   taskCheckboxCompleted: {
     backgroundColor: colors.checked,
-  },
-  taskText: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-  taskTextCompleted: {
-    textDecorationLine: "line-through",
-    color: colors.gray,
   },
   addButton: {
     position: "absolute",
@@ -116,7 +142,7 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(29, 29, 29, 0.4)",
   },
   modalContent: {
     width: "85%",
@@ -173,5 +199,27 @@ export const globalStyles = StyleSheet.create({
   dayButtonText: {
     fontSize: 14,
     color: colors.text,
+  },
+  categorySelectionContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 5,
+    margin: 5,
+  },
+  selectedCategoryButton: {
+    backgroundColor: '#6200ea',
+  },
+  categoryButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#000',
   },
 });
