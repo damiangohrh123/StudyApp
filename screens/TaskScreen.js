@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Modal, ScrollView } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Modal, ScrollView } from "react-native";
 import { TextInput, Button, Switch } from "react-native-paper";
-import { DatePickerModal, registerTranslation } from "react-native-paper-dates";
 import { format, addDays, isToday, isDate } from "date-fns";
 import { collection, addDoc, query, where, onSnapshot, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -10,16 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import { globalStyles, colors, categoryColors } from "../styles/globalStyles";
 import InputField from "../components/inputField";
-
-// Register the English locale for date picker
-registerTranslation('en', {
-  save: 'Save',
-  selectSingle: 'Select a date',
-  close: 'Close',
-  previous: 'Previous',
-  next: 'Next',
-  typeInDate: 'Type in date',
-});
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function TaskScreen() {
   const { user } = useAuth();
@@ -32,7 +23,6 @@ export default function TaskScreen() {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringDays, setRecurringDays] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDatePickerActive, setIsDatePickerActive] = useState(false);
 
@@ -348,7 +338,7 @@ export default function TaskScreen() {
                 </View>
               )}
 
-              <TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+              <TouchableOpacity onPress={() => setIsDatePickerActive(true)}>
                 <TextInput
                   label={isRecurring ? "Start Date" : "Due Date"}
                   value={dueDate ? format(dueDate, "yyyy-MM-dd") : "Select Date"}
@@ -357,21 +347,19 @@ export default function TaskScreen() {
                 />
               </TouchableOpacity>
 
-              <DatePickerModal
-                locale="en"
-                mode="single"
-                visible={datePickerVisible}
-                onDismiss={() => {
-                  setDatePickerVisible(false);
-                  setIsDatePickerActive(false); // Mark date picker as inactive
-                }}
-                date={dueDate}
-                onConfirm={(params) => {
-                  setDueDate(params.date);
-                  setDatePickerVisible(false);
-                  setIsDatePickerActive(false);
-                }}
-              />
+              {isDatePickerActive && (
+                <DateTimePicker
+                  value={dueDate || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      setDueDate(selectedDate);
+                    }
+                    setIsDatePickerActive(false);
+                  }}
+                />
+              )}
 
               <Button mode="contained" onPress={addTask} style={globalStyles.addButton}>
                 Add Task
