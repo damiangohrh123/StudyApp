@@ -103,9 +103,21 @@ export default function TaskScreen() {
 
   // Add task function
   const addTask = async () => {
-    // Make sure task title is not empty
+    // Input validation
     if (!newTaskTitle.trim()) {
       alert("Please enter a task title.");
+      return;
+    }
+    if (!selectedCategory) {
+      alert("Please select a task category.");
+      return;
+    }
+    if (!isRecurring && !dueDate) {
+      alert("Please select a due date.");
+      return;
+    }
+    if (isRecurring && recurringDays.length === 0) {
+      alert("Please select at least one recurring day.");
       return;
     }
 
@@ -121,6 +133,9 @@ export default function TaskScreen() {
         completed: false,
         expired: false,
       });
+
+      // Close the modal after adding the task
+      setModalVisible(false);
     } catch (error) {
       console.error("Error adding task: ", error);
       alert("Failed to add task.");
