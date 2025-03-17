@@ -16,6 +16,21 @@ export const colors = {
   selected: "rgba(217, 239, 255, 1)",   // Light Blue for selected items
 };
 
+export const categoryColors = {
+  Assignment: {
+    backgroundColor: "rgba(232, 47, 62, 1)",
+    iconColor: "rgb(255, 255, 255)",
+  },
+  Revision: {
+    backgroundColor: "rgba(167, 103, 231, 1)",
+    iconColor: "rgb(255, 255, 255)",
+  },
+  Practice: {
+    backgroundColor: "rgba(94, 138, 237, 1)",
+    iconColor: "rgb(255, 255, 255)",
+  },
+};
+
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -27,6 +42,9 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: 20,
     fontWeight: "bold",
     color: colors.text,
+  },
+  inputLabel: {
+    fontSize: 14,
   },
 
   /** 
@@ -76,33 +94,6 @@ export const globalStyles = StyleSheet.create({
     marginHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.lightGray,
-  },
-  assignmentsBackground: {
-    backgroundColor: "rgba(232, 47, 62, 1)",
-    width: 35,
-    height: 35,
-    padding: 5,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  revisionBackground: {
-    backgroundColor: "rgba(167, 103, 231, 1)",
-    width: 35,
-    height: 35,
-    padding: 5,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  practiceBackground: {
-    backgroundColor: "rgba(94, 138, 237, 1)",
-    width: 35,
-    height: 35,
-    padding: 5,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
   },
   taskText: {
     fontSize: 14,
@@ -196,26 +187,27 @@ export const globalStyles = StyleSheet.create({
     color: colors.text,
   },
   categorySelectionContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginVertical: 10,
+    flexDirection: 'column',
+    gap: 10,
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.lightGray,
+  },
+  categories: {
+    flexDirection: 'column',
   },
   categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
-    backgroundColor: '#f0f0f0',
     borderRadius: 5,
     margin: 5,
   },
-  selectedCategoryButton: {
-    backgroundColor: '#6200ea',
-  },
   categoryButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#000',
+    marginLeft: 5,
+    fontSize: 14,
+    color: "#fff", // White text for contrast
   },
   /**
    * Task Screen --------------------------------------------------------------------------------------------

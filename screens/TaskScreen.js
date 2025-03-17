@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, FlatList, TouchableOpacity, Modal, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { SafeAreaView, View, Text, FlatList, TouchableOpacity, Modal, ScrollView } from "react-native";
 import { TextInput, Button, Switch } from "react-native-paper";
 import { DatePickerModal, registerTranslation } from "react-native-paper-dates";
-import { format, addDays, isToday } from "date-fns";
+import { format, addDays, isToday, isDate } from "date-fns";
 import { collection, addDoc, query, where, onSnapshot, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import { Feather } from "@expo/vector-icons";
-import { globalStyles } from "../styles/globalStyles";
+import { globalStyles, colors, categoryColors } from "../styles/globalStyles";
 import InputField from "../components/inputField";
 
 // Register the English locale for date picker
@@ -35,6 +34,8 @@ export default function TaskScreen() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isDatePickerActive, setIsDatePickerActive] = useState(false);
+
 
   // Edit task modal
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -100,7 +101,9 @@ export default function TaskScreen() {
     return taskDate && taskDate.toDateString() === selectedDate.toDateString();
   });
 
+  // Add task function
   const addTask = async () => {
+    // Make sure task title is not empty
     if (!newTaskTitle.trim()) {
       alert("Please enter a task title.");
       return;
@@ -118,18 +121,22 @@ export default function TaskScreen() {
         completed: false,
         expired: false,
       });
-
-      setNewTaskTitle("");
-      setDueDate(null);
-      setIsRecurring(false);
-      setRecurringDays([]);
-      setSelectedCategory("");
-      setModalVisible(false);
     } catch (error) {
       console.error("Error adding task: ", error);
       alert("Failed to add task.");
     }
   };
+
+  // Reset the state of modal after adding task or closing modal 
+  useEffect(() => {
+    if (!modalVisible && !isDatePickerActive) {
+      setNewTaskTitle("");
+      setDueDate(null);
+      setIsRecurring(false);
+      setRecurringDays([]);
+      setSelectedCategory("");
+    }
+  }, [modalVisible, isDatePickerActive]);
 
   const toggleTask = async (task) => {
     try {
@@ -170,7 +177,7 @@ export default function TaskScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={globalStyles.container}>
         <Text style={globalStyles.title}>
           {isToday(selectedDate) ? "Today" : format(selectedDate, "MMMM dd, yyyy")}
@@ -203,8 +210,6 @@ export default function TaskScreen() {
             data={filteredTasks}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-
-              // Singular task item
               <TouchableOpacity
                 style={globalStyles.taskItem}
                 onPress={() => toggleTask(item)}
@@ -215,26 +220,25 @@ export default function TaskScreen() {
                   setEditModalVisible(true);
                 }}
               >
-                {/* Category icon */}
-                <View style={[item.category === "Assignment" && globalStyles.assignmentsBackground,
-                item.category === "Revision" && globalStyles.revisionBackground,
-                item.category === "Practice" && globalStyles.practiceBackground]}>
+                {/* Category icon with dynamic color */}
+                <View
+                  style={[
+                    { backgroundColor: categoryColors[item.category]?.backgroundColor },
+                    { padding: 10, borderRadius: 50 },
+                  ]}
+                >
                   <Feather
                     name={
                       item.category === "Assignment" ? "edit" :
                         item.category === "Revision" ? "book-open" : "watch"
                     }
                     size={20}
-                    color="#FFF"
+                    color={categoryColors[item.category]?.iconColor || "#000"}
                   />
                 </View>
                 <View>
-                  <Text style={globalStyles.taskText}>
-                    {item.title}
-                  </Text>
-                  <Text style={globalStyles.taskCategoryText}>
-                    {item.category}
-                  </Text>
+                  <Text style={globalStyles.taskText}>{item.title}</Text>
+                  <Text style={globalStyles.taskCategoryText}>{item.category}</Text>
                 </View>
                 <View style={[globalStyles.taskCheckbox, item.completed && globalStyles.taskCheckboxCompleted]}>
                   {item.completed && <Feather name="check" size={18} color="#FFF" />}
@@ -259,31 +263,45 @@ export default function TaskScreen() {
                 label="Task Title"
                 value={newTaskTitle}
                 onChangeText={setNewTaskTitle}
-                style={globalStyles.input} // Custom input style for input
-                labelStyle={globalStyles.inputLabel} // Custom label style
-                containerStyle={globalStyles.inputContainer} // Custom container for border
+                style={globalStyles.input}
+                labelStyle={globalStyles.inputLabel}
+                containerStyle={globalStyles.inputContainer}
               />
 
               {/* Task Category Selection */}
-              <Text style={globalStyles.inputLabel}>Task Category</Text>
               <View style={globalStyles.categorySelectionContainer}>
-                {taskCategories.map((category) => (
-                  <TouchableOpacity
-                    key={category.name}
-                    onPress={() => setSelectedCategory(category.name)}
-                    style={[
-                      globalStyles.categoryButton,
-                      selectedCategory === category.name && globalStyles.selectedCategoryButton,
-                    ]}
-                  >
-                    <Feather
-                      name={category.icon}
-                      size={20}
-                      color={selectedCategory === category.name ? "#fff" : "#000"}
-                    />
-                    <Text style={globalStyles.categoryButtonText}>{category.name}</Text>
-                  </TouchableOpacity>
-                ))}
+                <Text style={globalStyles.inputLabel}>Category</Text>
+                <View style={globalStyles.categories}>
+                  {taskCategories.map((category) => (
+                    <TouchableOpacity
+                      key={category.name}
+                      onPress={() => setSelectedCategory(category.name)}
+                      style={[
+                        globalStyles.categoryButton,
+                        (selectedCategory === category.name || editedCategory === category.name),
+                        {
+                          backgroundColor: selectedCategory === category.name || editedCategory === category.name
+                            ? categoryColors[category.name]?.backgroundColor
+                            : "transparent",
+                        },
+                      ]}
+                    >
+                      <Feather
+                        name={category.icon}
+                        size={20}
+                        color={selectedCategory === category.name || editedCategory === category.name ? "#fff" : "#000"} // White icon when selected, black otherwise
+                      />
+                      <Text
+                        style={[
+                          globalStyles.categoryButtonText,
+                          { color: selectedCategory === category.name || editedCategory === category.name ? "#fff" : "#000" }, // White text when selected, black otherwise
+                        ]}
+                      >
+                        {category.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               <View style={globalStyles.switchContainer}>
@@ -328,11 +346,15 @@ export default function TaskScreen() {
                 locale="en"
                 mode="single"
                 visible={datePickerVisible}
-                onDismiss={() => setDatePickerVisible(false)}
+                onDismiss={() => {
+                  setDatePickerVisible(false);
+                  setIsDatePickerActive(false); // Mark date picker as inactive
+                }}
                 date={dueDate}
                 onConfirm={(params) => {
                   setDueDate(params.date);
                   setDatePickerVisible(false);
+                  setIsDatePickerActive(false);
                 }}
               />
 
@@ -367,15 +389,30 @@ export default function TaskScreen() {
                     onPress={() => setEditedCategory(category.name)}
                     style={[
                       globalStyles.categoryButton,
-                      editedCategory === category.name && globalStyles.selectedCategoryButton,
+                      editedCategory === category.name,
+                      {
+                        backgroundColor:
+                          editedCategory === category.name
+                            ? categoryColors[category.name]?.backgroundColor || "#f0f0f0"
+                            : "transparent",
+                      },
                     ]}
                   >
                     <Feather
                       name={category.icon}
                       size={20}
-                      color={editedCategory === category.name ? "#fff" : "#000"}
+                      color={editedCategory === category.name ? "#fff" : "#000"} // Text color black for unselected
                     />
-                    <Text style={globalStyles.categoryButtonText}>{category.name}</Text>
+                    <Text
+                      style={[
+                        globalStyles.categoryButtonText,
+                        {
+                          color: editedCategory === category.name ? "#fff" : "#000", // Black text for unselected categories
+                        },
+                      ]}
+                    >
+                      {category.name}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
