@@ -4,8 +4,9 @@ import { globalStyles, colors } from '../styles/globalStyles';
 
 const InputField = ({ label, value, onChangeText }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef(null); // Ref for TextInput
-  const labelY = useRef(new Animated.Value(0)).current; // Animated value for label position
+  const [hasValue, setHasValue] = useState(false);
+  const inputRef = useRef(null);
+  const labelY = useRef(new Animated.Value(0)).current;
 
   // Handle focus and blur
   const handleFocus = () => {
@@ -21,11 +22,19 @@ const InputField = ({ label, value, onChangeText }) => {
   const handleBlur = () => {
     setIsFocused(false);
     // Animate label back to center when blurred
-    Animated.timing(labelY, {
-      toValue: 0, // Move the label back to the center
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    if (value.trim() === '') {
+      Animated.timing(labelY, {
+        toValue: 0, // Move the label back to the center only if there is no value
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  // Update value and check if the input field has any content
+  const handleChangeText = (text) => {
+    onChangeText(text);
+    setHasValue(text.trim().length > 0);
   };
 
   // Focus the TextInput when the view is clicked
@@ -40,7 +49,7 @@ const InputField = ({ label, value, onChangeText }) => {
           <Animated.Text
             style={[
               styles.label,
-              isFocused && styles.focusedLabel,
+              (isFocused || hasValue) ? styles.focusedLabel : null,  // Apply focusedLabel if focused or has value
               { transform: [{ translateY: labelY }] }, // Apply animated Y position
             ]}
           >
@@ -49,10 +58,13 @@ const InputField = ({ label, value, onChangeText }) => {
           <TextInput
             ref={inputRef}
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={handleChangeText}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            style={[styles.input, isFocused && styles.focusedInput]}
+            style={[
+              styles.input,
+              (isFocused || hasValue) ? styles.focusedInput : null, // Apply focusedInput if focused or has value
+            ]}
           />
         </View>
       </TouchableWithoutFeedback>
