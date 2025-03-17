@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, FlatList, TouchableOpacity, Modal, ScrollView } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Modal, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { TextInput, Button, Switch } from "react-native-paper";
 import { DatePickerModal, registerTranslation } from "react-native-paper-dates";
 import { format, addDays, isToday } from "date-fns";
-import { collection, addDoc, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, query, where, onSnapshot, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
+import InputField from "../components/inputField";
 
 // Register the English locale for date picker
 registerTranslation('en', {
@@ -24,6 +25,8 @@ registerTranslation('en', {
 export default function TaskScreen() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
+
+  // Create task modal
   const [modalVisible, setModalVisible] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [dueDate, setDueDate] = useState(null);
@@ -33,11 +36,17 @@ export default function TaskScreen() {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  // Edit task modal
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [editedTaskTitle, setEditedTaskTitle] = useState("");
+  const [editedCategory, setEditedCategory] = useState("");
+
   const taskCategories = [
     { name: "Assignment", icon: "edit" },
     { name: "Revision", icon: "book-open" },
     { name: "Practice", icon: "watch" },
-  ]; 
+  ];
   const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   // Auto-scroll to today's date for the horizontal scroll
@@ -131,6 +140,35 @@ export default function TaskScreen() {
     }
   };
 
+  const updateTask = async (taskId) => {
+    if (!editedTaskTitle.trim()) {
+      alert("Task title cannot be empty.");
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "tasks", taskId), {
+        title: editedTaskTitle,
+        category: editedCategory,
+      });
+
+      setEditModalVisible(false);
+    } catch (error) {
+      console.error("Error updating task: ", error);
+      alert("Failed to update task.");
+    }
+  };
+
+  const deleteTask = async (taskId) => {
+    try {
+      await deleteDoc(doc(db, "tasks", taskId));
+      setEditModalVisible(false);
+    } catch (error) {
+      console.error("Error deleting task: ", error);
+      alert("Failed to delete task.");
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
       <View style={globalStyles.container}>
@@ -170,15 +208,21 @@ export default function TaskScreen() {
               <TouchableOpacity
                 style={globalStyles.taskItem}
                 onPress={() => toggleTask(item)}
+                onLongPress={() => {
+                  setSelectedTask(item);
+                  setEditedTaskTitle(item.title);
+                  setEditedCategory(item.category);
+                  setEditModalVisible(true);
+                }}
               >
                 {/* Category icon */}
                 <View style={[item.category === "Assignment" && globalStyles.assignmentsBackground,
-                              item.category === "Revision" && globalStyles.revisionBackground,
-                              item.category === "Practice" && globalStyles.practiceBackground]}>
+                item.category === "Revision" && globalStyles.revisionBackground,
+                item.category === "Practice" && globalStyles.practiceBackground]}>
                   <Feather
                     name={
                       item.category === "Assignment" ? "edit" :
-                      item.category === "Revision" ? "book-open" : "watch"
+                        item.category === "Revision" ? "book-open" : "watch"
                     }
                     size={20}
                     color="#FFF"
@@ -211,7 +255,14 @@ export default function TaskScreen() {
             <View style={globalStyles.modalContent}>
               <Text style={globalStyles.modalTitle}>New Task</Text>
 
-              <TextInput label="Task Title" value={newTaskTitle} onChangeText={setNewTaskTitle} style={globalStyles.input} />
+              <InputField
+                label="Task Title"
+                value={newTaskTitle}
+                onChangeText={setNewTaskTitle}
+                style={globalStyles.input} // Custom input style for input
+                labelStyle={globalStyles.inputLabel} // Custom label style
+                containerStyle={globalStyles.inputContainer} // Custom container for border
+              />
 
               {/* Task Category Selection */}
               <Text style={globalStyles.inputLabel}>Task Category</Text>
@@ -289,6 +340,63 @@ export default function TaskScreen() {
                 Add Task
               </Button>
               <Button mode="outlined" onPress={() => setModalVisible(false)} color="red">
+                Cancel
+              </Button>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Edit task modal */}
+        <Modal visible={editModalVisible} animationType="slide" transparent>
+          <View style={globalStyles.modalContainer}>
+            <View style={globalStyles.modalContent}>
+              <Text style={globalStyles.modalTitle}>Edit Task</Text>
+
+              <TextInput
+                label="Task Title"
+                value={editedTaskTitle}
+                onChangeText={setEditedTaskTitle}
+                style={globalStyles.input}
+              />
+
+              <Text style={globalStyles.inputLabel}>Task Category</Text>
+              <View style={globalStyles.categorySelectionContainer}>
+                {taskCategories.map((category) => (
+                  <TouchableOpacity
+                    key={category.name}
+                    onPress={() => setEditedCategory(category.name)}
+                    style={[
+                      globalStyles.categoryButton,
+                      editedCategory === category.name && globalStyles.selectedCategoryButton,
+                    ]}
+                  >
+                    <Feather
+                      name={category.icon}
+                      size={20}
+                      color={editedCategory === category.name ? "#fff" : "#000"}
+                    />
+                    <Text style={globalStyles.categoryButtonText}>{category.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Button
+                mode="contained"
+                onPress={() => updateTask(selectedTask.id)}
+                style={globalStyles.addButton}
+              >
+                Save Changes
+              </Button>
+
+              <Button
+                mode="contained"
+                onPress={() => deleteTask(selectedTask.id)}
+                style={[globalStyles.addButton, { backgroundColor: "red" }]}
+              >
+                Delete Task
+              </Button>
+
+              <Button mode="outlined" onPress={() => setEditModalVisible(false)} color="black">
                 Cancel
               </Button>
             </View>

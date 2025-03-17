@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-const colors = {
+export const colors = {
   background: "rgba(250, 250, 250, 1)", // Off-white
   primary: "rgba(74, 144, 226, 1)",     // Soft Blue
 
@@ -29,7 +29,11 @@ export const globalStyles = StyleSheet.create({
     color: colors.text,
   },
 
-  // Task Screen
+  /** 
+   * Task Screen --------------------------------------------------------------------------------------------
+  */
+
+  // Horizontal scroling dates
   dateButton: {
     borderRadius: 5,
     backgroundColor: colors.white,
@@ -56,6 +60,8 @@ export const globalStyles = StyleSheet.create({
   selectedDateText: {
     color: colors.primary,
   },
+
+  // Tasks list
   tasksContainer: {
     height: "88%",
     justifyContent: "flex-start",
@@ -118,6 +124,8 @@ export const globalStyles = StyleSheet.create({
   taskCheckboxCompleted: {
     backgroundColor: colors.checked,
   },
+
+  // Add task button
   addButton: {
     position: "absolute",
     bottom: 20,
@@ -138,6 +146,8 @@ export const globalStyles = StyleSheet.create({
     color: colors.white,
     fontWeight: "bold",
   },
+
+  // Add task modal
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -145,31 +155,16 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: "rgba(29, 29, 29, 0.4)",
   },
   modalContent: {
-    width: "85%",
-    padding: 25,
-    backgroundColor: colors.white,
+    width: "90%",
+    backgroundColor: colors.background,
+    padding: 20,
     borderRadius: 12,
-    alignItems: "center",
-    shadowColor: colors.gray,
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: colors.primary,
-    marginBottom: 10,
-  },
-  input: {
-    width: "100%",
-    padding: 12,
-    borderWidth: 1,
-    borderColor: colors.lightGray,
-    borderRadius: 8,
-    marginBottom: 12,
-    fontSize: 16,
     color: colors.text,
+    marginBottom: 15,
   },
   switchContainer: {
     flexDirection: "row",
@@ -222,4 +217,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
+  /**
+   * Task Screen --------------------------------------------------------------------------------------------
+  */
 });
